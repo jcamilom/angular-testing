@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { LoginComponent } from './login.component';
-import { FormsModule, ReactiveFormsModule,  } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, AbstractControl, } from '@angular/forms';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -9,7 +9,7 @@ describe('LoginComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [FormsModule, ReactiveFormsModule],
-      providers: [ LoginComponent ]
+      providers: [LoginComponent]
     });
     component = TestBed.inject(LoginComponent);
   });
@@ -24,25 +24,30 @@ describe('LoginComponent', () => {
     expect(component.form.valid).toBeFalsy();
   });
 
-  it('should have email field invalid on init', () => {
-    component.ngOnInit();
-    const emailControl = component.form.controls['email'];
-    expect(emailControl.valid).toBeFalsy();
-  });
+  describe('FieldValidity', () => {
 
-  it('should validate email required fail', () => {
-    component.ngOnInit();
-    const emailControl = component.form.controls['email'];
-    const errors = emailControl.errors || {};
-    expect(errors['required']).toBeTruthy();
-  });
+    let emailControl: AbstractControl;
 
-  it('should validate email required success', () => {
-    component.ngOnInit();
-    const emailControl = component.form.controls['email'];
-    emailControl.setValue('pablo@mail.com');
-    const errors = emailControl.errors || {};
-    expect(errors['required']).toBeFalsy();
+    beforeEach(() => {
+      component.ngOnInit();
+      emailControl = component.form.controls['email'];
+    });
+
+    it('should have email field invalid on init', () => {
+      expect(emailControl.valid).toBeFalsy();
+    });
+
+    it('should validate email required fail', () => {
+      const errors = emailControl.errors || {};
+      expect(errors['required']).toBeTruthy();
+    });
+
+    it('should validate email required success', () => {
+      emailControl.setValue('pablo@mail.com');
+      const errors = emailControl.errors || {};
+      expect(errors['required']).toBeFalsy();
+    });
+
   });
 
 });
