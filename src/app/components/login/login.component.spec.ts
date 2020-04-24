@@ -18,12 +18,6 @@ describe('LoginComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have invalid form on init', () => {
-    component.ngOnInit();
-    expect(component.form.valid).not.toBeTruthy();
-    expect(component.form.valid).toBeFalsy();
-  });
-
   describe('FieldValidity', () => {
 
     let emailControl: AbstractControl;
@@ -63,7 +57,37 @@ describe('LoginComponent', () => {
     it('should validate email pattern success', () => {
       emailControl.setValue('pablo@mail.com');
       const errors = emailControl.errors || {};
-      expect(errors['pattern']).toBeTruthy();
+      expect(errors['pattern']).toBeFalsy();
+    });
+
+  });
+
+  describe('FormSubmission', () => {
+
+    it('should have invalid form on init', () => {
+      component.ngOnInit();
+      expect(component.form.valid).not.toBeTruthy();
+      expect(component.form.valid).toBeFalsy();
+    });
+
+    it('should submit a valid form', () => {
+      component.ngOnInit();
+      component.form.setValue({
+        email: 'juan@email.com',
+        password: '1234',
+      });
+      component.login();
+      expect(component.isLoggedIn).toBeTrue();
+    });
+
+    it('should not submit an invalid form', () => {
+      component.ngOnInit();
+      component.form.setValue({
+        email: 'juan@email.com',
+        password: '',
+      });
+      component.login();
+      expect(component.isLoggedIn).toBeFalsy();
     });
 
   });
