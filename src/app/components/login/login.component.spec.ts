@@ -43,9 +43,27 @@ describe('LoginComponent', () => {
     });
 
     it('should validate email required success', () => {
-      emailControl.setValue('pablo@mail.com');
+      emailControl.setValue('el-email-de-pablo');
       const errors = emailControl.errors || {};
       expect(errors['required']).toBeFalsy();
+    });
+
+    it('should validate email pattern fail', () => {
+      emailControl.setValue('@mail.com');
+      const errors = emailControl.errors || {};
+      expect(errors['pattern']).toBeTruthy();
+    });
+
+    it('should validate email pattern fail', () => {
+      emailControl.setValue('@mail.com');
+      const errors = emailControl.errors || {};
+      expect(errors['pattern']).toBeTruthy();
+    });
+
+    it('should validate email pattern success', () => {
+      emailControl.setValue('pablo@mail.com');
+      const errors = emailControl.errors || {};
+      expect(errors['pattern']).toBeTruthy();
     });
 
   });
