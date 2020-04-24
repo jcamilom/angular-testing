@@ -16,6 +16,9 @@ export class UserService {
   // Calculates the Body Mass Index with the provided data.
   // mass in kg, height in meters
   public calculateBMI(userData: IUserData): number {
+    if (userData.height === 0) {
+      return undefined;
+    }
     return userData.mass / (userData.height * userData.height);
   }
 

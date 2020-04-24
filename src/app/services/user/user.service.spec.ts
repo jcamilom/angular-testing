@@ -28,4 +28,15 @@ describe('UserService', () => {
     expect(bmi).toBeCloseTo(expectedBMI, 1);
   });
 
+  it('should return undefined for height 0', () => {
+    // ARRANGE
+    const userData: IUserData = {
+      name: 'Juan',
+      mass: 70,
+      height: 0
+    };
+    // ACT & ASSERT
+    expect(service.calculateBMI(userData)).toBeUndefined();
+  });
+
 });
