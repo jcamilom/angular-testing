@@ -60,6 +60,18 @@ describe('LoginComponent', () => {
       expect(errors['pattern']).toBeFalsy();
     });
 
+    it('should validate email domain fail', () => {
+      emailControl.setValue('henry@mail.com');
+      const errors = emailControl.errors || {};
+      expect(errors['emailDomain']).toBeTruthy();
+    });
+
+    it('should validate email domain success', () => {
+      emailControl.setValue('henry@leanstaffing.com');
+      const errors = emailControl.errors || {};
+      expect(errors['emailDomain']).toBeFalsy();
+    });
+
   });
 
   describe('FormSubmission', () => {
@@ -73,7 +85,7 @@ describe('LoginComponent', () => {
     it('should submit a valid form', () => {
       component.ngOnInit();
       component.form.setValue({
-        email: 'juan@email.com',
+        email: 'juan@leanstaffing.com',
         password: '1234',
       });
       component.login();
