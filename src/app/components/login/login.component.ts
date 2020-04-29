@@ -14,6 +14,7 @@ export class LoginComponent implements OnInit {
 
   public form: FormGroup;
   public isLoggedIn: boolean;
+  public userAge: number;
 
   constructor(private formBuilder: FormBuilder, private authService: AuthService) { }
 
@@ -32,6 +33,7 @@ export class LoginComponent implements OnInit {
     this.authService.login(formValue.email, formValue.password).subscribe(
       (resp) => {
         this.isLoggedIn = true;
+        this.userAge = resp.userData.age;
       }, (err) => {
         this.isLoggedIn = false;
       }

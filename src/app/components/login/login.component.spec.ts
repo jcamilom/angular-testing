@@ -82,6 +82,12 @@ describe('LoginComponent', () => {
 
   describe('FormSubmission', () => {
 
+    let testLoginResponse: any;
+
+    beforeEach(() => {
+      testLoginResponse = getTestLoginResponse();
+    });
+
     it('should have invalid form on init', () => {
       component.ngOnInit();
       expect(component.form.valid).not.toBeTruthy();
@@ -97,6 +103,7 @@ describe('LoginComponent', () => {
       component.login();
       tick();
       expect(component.isLoggedIn).toBeTrue();
+      expect(component.userAge).toEqual(testLoginResponse.userData.age, 'user age');
     }));
 
     it('should not submit an invalid form', () => {
@@ -151,13 +158,17 @@ export class TestAuthService extends AuthService {
   }
 
   public login(username: string, password: string): Observable<any> {
-    return asyncData({
-      userData: {
-        name: 'Pedro',
-        age: 29
-      },
-      token: '1234'
-    });
+    return asyncData(getTestLoginResponse());
   }
 
+}
+
+function getTestLoginResponse() {
+  return {
+    userData: {
+      name: 'Pedro',
+      age: 29
+    },
+    token: '1234'
+  };
 }
