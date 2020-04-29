@@ -3,6 +3,9 @@ import { AbstractControl, FormBuilder, } from '@angular/forms';
 
 import { LoginComponent } from './login.component';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { TestAuthService } from 'src/app/testing/services/auth/test-auth.service';
+import { asyncError } from 'src/app/testing/helpers/async-observable-helpers';
+import { getTestLoginResponse } from 'src/app/testing/services/auth/test-auth.service.response';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -131,44 +134,3 @@ describe('LoginComponent', () => {
   });
 
 });
-
-
-import { defer } from 'rxjs';
-
-/** Create async observable that emits-once and completes
- *  after a JS engine turn */
-export function asyncData<T>(data: T) {
-  return defer(() => Promise.resolve(data));
-}
-
-/** Create async observable error that errors
- *  after a JS engine turn */
-export function asyncError<T>(errorObject: any) {
-  return defer(() => Promise.reject(errorObject));
-}
-
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-
-@Injectable()
-export class TestAuthService extends AuthService {
-
-  constructor() {
-    super(null);
-  }
-
-  public login(username: string, password: string): Observable<any> {
-    return asyncData(getTestLoginResponse());
-  }
-
-}
-
-function getTestLoginResponse() {
-  return {
-    userData: {
-      name: 'Pedro',
-      age: 29
-    },
-    token: '1234'
-  };
-}
