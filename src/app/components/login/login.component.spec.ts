@@ -6,22 +6,18 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
-
+  let authService: AuthService;
 
   beforeEach(() => {
-    // Create a fake AuthService object with a `login()` spy
-    const authService = jasmine.createSpyObj('AuthService', ['login']);
-
     TestBed.configureTestingModule({
       providers: [
         LoginComponent,
         FormBuilder,
-        { provide: AuthService, useValue: authService }
+        { provide: AuthService, useClass: TestAuthService }
       ]
     });
     component = TestBed.inject(LoginComponent);
-    authServiceSpy = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    authService = TestBed.inject(AuthService);
   });
 
   it('should create', () => {
@@ -93,14 +89,6 @@ describe('LoginComponent', () => {
     });
 
     it('should submit a valid form', fakeAsync(() => {
-      // Make the spy return a synchronous Observable with the test data
-      authServiceSpy.login.and.returnValue(asyncData({
-        userData: {
-          name: 'Pedro',
-          age: 29
-        },
-        token: '1234'
-      }));
       component.ngOnInit();
       component.form.setValue({
         email: 'juan@leanstaffing.com',
@@ -122,8 +110,7 @@ describe('LoginComponent', () => {
     });
 
     it('should set variable to false on error', fakeAsync(() => {
-      // Make the spy return a synchronous Observable with the test data
-      authServiceSpy.login.and.returnValue(asyncError('Error ocurred'));
+      spyOn(authService, 'login').and.returnValue(asyncError('Error ocurred'));
       component.ngOnInit();
       component.form.setValue({
         email: 'juan@leanstaffing.com',
@@ -151,4 +138,26 @@ export function asyncData<T>(data: T) {
  *  after a JS engine turn */
 export function asyncError<T>(errorObject: any) {
   return defer(() => Promise.reject(errorObject));
+}
+
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+
+@Injectable()
+export class TestAuthService extends AuthService {
+
+  constructor() {
+    super(null);
+  }
+
+  public login(username: string, password: string): Observable<any> {
+    return asyncData({
+      userData: {
+        name: 'Pedro',
+        age: 29
+      },
+      token: '1234'
+    });
+  }
+
 }
