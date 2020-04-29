@@ -1,15 +1,32 @@
 import { TestBed } from '@angular/core/testing';
+import { AbstractControl, FormBuilder, } from '@angular/forms';
 
 import { LoginComponent } from './login.component';
-import { FormsModule, ReactiveFormsModule, AbstractControl, } from '@angular/forms';
+import { AuthService } from 'src/app/services/auth/auth.service';
+import { of } from 'rxjs';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
+  let loginSpy: jasmine.Spy;
 
   beforeEach(() => {
+    // Create a fake AuthService object with a `login()` spy
+    const authService = jasmine.createSpyObj('AuthService', ['login']);
+    // Make the spy return a synchronous Observable with the test data
+    loginSpy = authService.login.and.returnValue(of({
+      userData: {
+        name: 'Pedro',
+        age: 29
+      },
+      token: '1234'
+    }));
+
     TestBed.configureTestingModule({
-      imports: [FormsModule, ReactiveFormsModule],
-      providers: [LoginComponent]
+      providers: [
+        LoginComponent,
+        FormBuilder,
+        { provide: AuthService, useValue: authService }
+      ]
     });
     component = TestBed.inject(LoginComponent);
   });
