@@ -1,9 +1,8 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { AbstractControl, FormBuilder, } from '@angular/forms';
 
 import { LoginComponent } from './login.component';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { of, throwError } from 'rxjs';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -93,9 +92,9 @@ describe('LoginComponent', () => {
       expect(component.form.valid).toBeFalsy();
     });
 
-    it('should submit a valid form', () => {
+    it('should submit a valid form', fakeAsync(() => {
       // Make the spy return a synchronous Observable with the test data
-      authServiceSpy.login.and.returnValue(of({
+      authServiceSpy.login.and.returnValue(asyncData({
         userData: {
           name: 'Pedro',
           age: 29
@@ -108,18 +107,11 @@ describe('LoginComponent', () => {
         password: '1234',
       });
       component.login();
+      tick();
       expect(component.isLoggedIn).toBeTrue();
-    });
+    }));
 
     it('should not submit an invalid form', () => {
-      // Make the spy return a synchronous Observable with the test data
-      authServiceSpy.login.and.returnValue(of({
-        userData: {
-          name: 'Pedro',
-          age: 29
-        },
-        token: '1234'
-      }));
       component.ngOnInit();
       component.form.setValue({
         email: 'juan@email.com',
@@ -129,18 +121,34 @@ describe('LoginComponent', () => {
       expect(component.isLoggedIn).toBeFalsy();
     });
 
-    it('should set variable to false on error', () => {
+    it('should set variable to false on error', fakeAsync(() => {
       // Make the spy return a synchronous Observable with the test data
-      authServiceSpy.login.and.returnValue(throwError('Error ocurred'));
+      authServiceSpy.login.and.returnValue(asyncError('Error ocurred'));
       component.ngOnInit();
       component.form.setValue({
         email: 'juan@leanstaffing.com',
         password: '1234',
       });
       component.login();
+      tick();
       expect(component.isLoggedIn).toBeFalse();
-    });
+    }));
 
   });
 
 });
+
+
+import { defer } from 'rxjs';
+
+/** Create async observable that emits-once and completes
+ *  after a JS engine turn */
+export function asyncData<T>(data: T) {
+  return defer(() => Promise.resolve(data));
+}
+
+/** Create async observable error that errors
+ *  after a JS engine turn */
+export function asyncError<T>(errorObject: any) {
+  return defer(() => Promise.reject(errorObject));
+}
