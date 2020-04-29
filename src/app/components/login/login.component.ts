@@ -32,6 +32,8 @@ export class LoginComponent implements OnInit {
     this.authService.login(formValue.email, formValue.password).subscribe(
       (resp) => {
         this.isLoggedIn = true;
+      }, (err) => {
+        this.isLoggedIn = false;
       }
     );
   }

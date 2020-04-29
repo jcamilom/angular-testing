@@ -3,23 +3,16 @@ import { AbstractControl, FormBuilder, } from '@angular/forms';
 
 import { LoginComponent } from './login.component';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
-  let loginSpy: jasmine.Spy;
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
+
 
   beforeEach(() => {
     // Create a fake AuthService object with a `login()` spy
     const authService = jasmine.createSpyObj('AuthService', ['login']);
-    // Make the spy return a synchronous Observable with the test data
-    loginSpy = authService.login.and.returnValue(of({
-      userData: {
-        name: 'Pedro',
-        age: 29
-      },
-      token: '1234'
-    }));
 
     TestBed.configureTestingModule({
       providers: [
@@ -29,6 +22,7 @@ describe('LoginComponent', () => {
       ]
     });
     component = TestBed.inject(LoginComponent);
+    authServiceSpy = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
   });
 
   it('should create', () => {
@@ -100,6 +94,14 @@ describe('LoginComponent', () => {
     });
 
     it('should submit a valid form', () => {
+      // Make the spy return a synchronous Observable with the test data
+      authServiceSpy.login.and.returnValue(of({
+        userData: {
+          name: 'Pedro',
+          age: 29
+        },
+        token: '1234'
+      }));
       component.ngOnInit();
       component.form.setValue({
         email: 'juan@leanstaffing.com',
@@ -110,6 +112,14 @@ describe('LoginComponent', () => {
     });
 
     it('should not submit an invalid form', () => {
+      // Make the spy return a synchronous Observable with the test data
+      authServiceSpy.login.and.returnValue(of({
+        userData: {
+          name: 'Pedro',
+          age: 29
+        },
+        token: '1234'
+      }));
       component.ngOnInit();
       component.form.setValue({
         email: 'juan@email.com',
@@ -117,6 +127,18 @@ describe('LoginComponent', () => {
       });
       component.login();
       expect(component.isLoggedIn).toBeFalsy();
+    });
+
+    it('should set variable to false on error', () => {
+      // Make the spy return a synchronous Observable with the test data
+      authServiceSpy.login.and.returnValue(throwError('Error ocurred'));
+      component.ngOnInit();
+      component.form.setValue({
+        email: 'juan@leanstaffing.com',
+        password: '1234',
+      });
+      component.login();
+      expect(component.isLoggedIn).toBeFalse();
     });
 
   });
