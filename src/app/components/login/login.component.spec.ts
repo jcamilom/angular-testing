@@ -1,17 +1,26 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { AbstractControl, FormBuilder, } from '@angular/forms';
 
 import { LoginComponent } from './login.component';
-import { FormsModule, ReactiveFormsModule, AbstractControl, } from '@angular/forms';
+import { AuthService } from 'src/app/services/auth/auth.service';
+import { TestAuthService } from 'src/app/testing/services/auth/test-auth.service';
+import { asyncError } from 'src/app/testing/helpers/async-observable-helpers';
+import { getTestLoginResponse } from 'src/app/testing/services/auth/test-auth.service.response';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
+  let authService: AuthService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [FormsModule, ReactiveFormsModule],
-      providers: [LoginComponent]
+      providers: [
+        LoginComponent,
+        FormBuilder,
+        { provide: AuthService, useClass: TestAuthService }
+      ]
     });
     component = TestBed.inject(LoginComponent);
+    authService = TestBed.inject(AuthService);
   });
 
   it('should create', () => {
@@ -76,21 +85,29 @@ describe('LoginComponent', () => {
 
   describe('FormSubmission', () => {
 
+    let testLoginResponse: any;
+
+    beforeEach(() => {
+      testLoginResponse = getTestLoginResponse();
+    });
+
     it('should have invalid form on init', () => {
       component.ngOnInit();
       expect(component.form.valid).not.toBeTruthy();
       expect(component.form.valid).toBeFalsy();
     });
 
-    it('should submit a valid form', () => {
+    it('should submit a valid form', fakeAsync(() => {
       component.ngOnInit();
       component.form.setValue({
         email: 'juan@leanstaffing.com',
         password: '1234',
       });
       component.login();
+      tick();
       expect(component.isLoggedIn).toBeTrue();
-    });
+      expect(component.userAge).toEqual(testLoginResponse.userData.age, 'user age');
+    }));
 
     it('should not submit an invalid form', () => {
       component.ngOnInit();
@@ -101,6 +118,18 @@ describe('LoginComponent', () => {
       component.login();
       expect(component.isLoggedIn).toBeFalsy();
     });
+
+    it('should set variable to false on error', fakeAsync(() => {
+      spyOn(authService, 'login').and.returnValue(asyncError('Error ocurred'));
+      component.ngOnInit();
+      component.form.setValue({
+        email: 'juan@leanstaffing.com',
+        password: '1234',
+      });
+      component.login();
+      tick();
+      expect(component.isLoggedIn).toBeFalse();
+    }));
 
   });
 
